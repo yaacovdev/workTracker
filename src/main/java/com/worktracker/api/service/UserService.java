@@ -1,8 +1,11 @@
 package com.worktracker.api.service;
 
+import com.worktracker.api.model.LoginResponse;
 import com.worktracker.api.model.User;
 import com.worktracker.api.repository.UserRepository;
+import com.worktracker.api.security.JwtTokenProvider;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder() ;
+        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Transactional
@@ -31,12 +36,15 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User login(String email, String password) {
+    public LoginResponse login(String email, String password) {
         User user = userRepository.findByEmail(email);
-        System.out.println(user);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("User email not found or password incorrect");
         }
-        return user;
+        // Generate tokens
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+        return new LoginResponse(accessToken, refreshToken);
     }
 }

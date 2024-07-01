@@ -1,5 +1,6 @@
 package com.worktracker.api.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,9 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.worktracker.api.service.UserService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
+import com.worktracker.api.model.LoginResponse;
 import com.worktracker.api.model.User;
-import com.worktracker.api.model.LoginRequest;
 
 @RestController
 @RequestMapping("/api/users")
@@ -28,11 +30,27 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public User loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
-        return userService.login(email, password);
+        return ResponseEntity.ok(userService.login(email, password));
+    }
+
+}
+
+class LoginRequest {
+    @NotBlank
+    private String email;
+    @NotBlank
+    private String password;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
 }
