@@ -1,5 +1,6 @@
 package com.worktracker.api.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -41,7 +42,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(Long.toString(user.getId()))
                 .claim("role", user.getRole())
-                .claim("username", user.getUsername())
+                .claim("email", user.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -56,5 +57,43 @@ public class JwtTokenProvider {
         return generateToken(user, true);
     }
 
-    // Add other methods to validate token if needed
+    // Add other methods to validate token
+
+    public boolean validateToken(String token) {
+        try {
+    
+            byte[] keyBytes = Base64.getDecoder().decode(environment.getProperty("jwt.secret"));
+            SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Base64.getDecoder().decode(environment.getProperty("jwt.secret")))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("email", String.class);
+    }
+
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Base64.getDecoder().decode(environment.getProperty("jwt.secret")))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("role", String.class);
+    }
+
+    
 }

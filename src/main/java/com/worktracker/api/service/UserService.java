@@ -5,14 +5,15 @@ import com.worktracker.api.model.User;
 import com.worktracker.api.repository.UserRepository;
 import com.worktracker.api.security.JwtTokenProvider;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -46,5 +47,21 @@ public class UserService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
         return new LoginResponse(accessToken, refreshToken);
+    }
+
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findByEmail(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities("USER") // You can set the appropriate authorities/roles here
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
+                .build();
     }
 }
