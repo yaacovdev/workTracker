@@ -29,6 +29,21 @@ This is a full-stack project using Java with Spring Boot for the backend, C++ fo
 
 ## Setup
 
+### Database
+1. **Start PostgreSQL** and create a database
+    ```sh
+    createdb worktracker
+    ```
+
+2. **Configure database connection** in `application.properties` (backend)
+    ```properties
+        # PostgreSQL database connection
+        spring.datasource.url=jdbc:postgresql://localhost:5432/worktracker
+        spring.datasource.username=postgres
+        spring.datasource.password=mysecretpassword
+        spring.datasource.driver-class-name=org.postgresql.Driver
+    ```
+
 ### Backend
 1. **Clone the repository**
     ```sh
@@ -38,7 +53,9 @@ This is a full-stack project using Java with Spring Boot for the backend, C++ fo
 
 2. **Build the backend**
     ```sh
+    cd backend
     mvn clean install
+    mvn dependency:copy-dependencies
     ```
 
 3. **Run the Spring Boot application**
@@ -62,38 +79,54 @@ This is a full-stack project using Java with Spring Boot for the backend, C++ fo
     npm start
     ```
 
-### Database
-1. **Start PostgreSQL** and create a database
-    ```sh
-    createdb mydatabase
-    ```
 
-2. **Configure database connection** in `application.properties` (backend)
-    ```properties
-    spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
-    spring.datasource.username=yayo
-    spring.datasource.password=mysecretpassword
-    ```
 
 ### System-Level Programming (C++)
-1. **Navigate to the C++ directory**
+1. **Navigate to the system directory**
     ```sh
     cd ../system
     ```
 
 2. **Compile the C++ code**
     ```sh
-    g++ -o myprogram myprogram.cpp
+    mkdir build
+    cd build
+    cmake ..
+    make
     ```
 
 3. **Run the C++ program**
     ```sh
-    ./myprogram
+    ./UsageTracker
     ```
 
 ## Running the Application
-1. Start the backend server as described in the [Backend Setup](#backend) section.
-2. Start the frontend server as described in the [Frontend Setup](#frontend) section.
-3. Ensure the PostgreSQL database is running and properly configured.
+1. Ensure the PostgreSQL database is running and properly configured.
+2. Start the backend server as described in the [Backend Setup](#backend) section.
+3. Start the frontend server as described in the [Frontend Setup](#frontend) section.
+4. Run the C++ program as described in the [System-Level Programming Setup](#system-level-programming-c) section.
+
 
 ## Project Structure
+```tree
+    workTracker/
+    ├── backend/
+    │   ├── src/
+    │   ├── pom.xml
+    │   └── ...
+    ├── frontend/
+    │   ├── src/
+    │   ├── package.json
+    │   └── ...
+    ├── system/
+    │   ├── myprogram.cpp
+    │   ├── CMakeLists.txt
+    │   └── ...
+    └── README.md
+```
+
+## Contributing
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## License
+This project is licensed under the YaacovDev License - see the [LICENSE](LICENSE) file for details.
